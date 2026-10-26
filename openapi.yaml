@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: GreenCode API
+  title: GreenCode API - Rafael
   version: 2.3.0
   description: API REST para logística reversa, organizações, contratos, lotes, equipamentos, movimentações, relatórios e auditoria.
 servers:
@@ -146,9 +146,50 @@ paths:
       responses: { '200': { description: Objeto de paginação com dados, total, pagina, limite e totalPaginas; dados contém os usuários } }
     post:
       summary: Cria usuário (somente administrador)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - usuario
+                - senha
+                - papel
+              properties:
+                usuario:
+                  type: string
+                  description: Nome de usuário para login
+                  example: operador01
+                senha:
+                  type: string
+                  minLength: 10
+                  description: Senha com pelo menos 10 caracteres
+                  example: SenhaTeste123
+                papel:
+                  type: string
+                  enum:
+                    - ADMINISTRADOR
+                    - OPERADOR_CADASTRO
+                    - GESTOR_ALMOXARIFADO
+                    - AUDITOR
+                  description: Perfil de acesso do usuário
+                  example: OPERADOR_CADASTRO
+                ativo:
+                  type: boolean
+                  default: true
+                  description: Define se o usuário está ativo
       responses:
-        '201': { description: Usuário criado }
-        '403': { description: Perfil sem permissão }
+        '201':
+          description: Usuário criado com sucesso
+        '400':
+          description: Dados inválidos
+        '401':
+          description: Token ausente ou inválido
+        '403':
+          description: Somente administrador pode criar usuários
+        '409':
+          description: Nome de usuário já cadastrado
   /api/usuarios/{id}:
     parameters:
       - { name: id, in: path, required: true, schema: { type: string } }

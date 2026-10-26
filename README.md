@@ -40,6 +40,10 @@ Durante desenvolvimento, use `npm run dev`. A API inicia na porta definida por `
 
 O seed garante o usuário administrador configurado em `.env`, 2 organizações, 2 contratos, 3 lotes e 5 equipamentos em estados variados. As organizações e equipamentos usam chaves únicas estáveis para evitar duplicações ao executar o seed novamente. Use apenas em desenvolvimento/testes; revise e troque as credenciais iniciais.
 
+## Acesso do Swagger
+
+Para acessar o Swagger, coloque (http://localhost:3000/api-docs/) no navegador ou clique na url após usar o comando `npm run dev` 
+
 ## Endpoints principais
 
 Todas as rotas `/api` abaixo de autenticação exigem `Authorization: Bearer <token>`.

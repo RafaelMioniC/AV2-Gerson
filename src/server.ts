@@ -15,7 +15,10 @@ async function iniciar() {
     void authRepository.purgarSessoesExpiradas().catch((erro) => console.error('Falha ao purgar sessões expiradas:', erro));
   }, 15 * 60 * 1000);
   purgaSessoes.unref();
-  const server = app.listen(port, () => console.log(`GreenCode API rodando em http://localhost:${port}`));
+  const server = app.listen(port, () => {
+    console.log(`GreenCode API rodando em http://localhost:${port}`);
+    console.log(`Swagger UI disponível em http://localhost:${port}/api-docs`);
+  });
   let encerrando = false;
   async function encerrar(sinal: string) {
     if (encerrando) return;

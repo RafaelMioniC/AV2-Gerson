@@ -58,6 +58,18 @@ app.use(
 app.use('/api/auth/login', express.json({ limit: '10kb' }));
 app.use(express.json({ limit: '1mb' }));
 
+
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    nome: 'GreenCode API - Made by Rafael',
+    versao: '2.3.0',
+    status: 'online',
+    documentacao: '/api-docs',
+    health: '/api/health',
+  });
+});
+
+
 // Verificação da API e da conexão com o MySQL
 app.get('/api/health', async (_req, res, _next) => {
   try {
