@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { PapelUsuario } from '@prisma/client';
+import { contratoAcoesController } from '../controllers/contrato-acoes.controller';
+import { permitir } from '../middlewares/auth.middleware';
+import { asyncRoute } from '../middlewares/error.middleware';
+const router = Router();
+const escrita = permitir(PapelUsuario.ADMINISTRADOR, PapelUsuario.OPERADOR_CADASTRO);
+router.post('/:id/renovar', escrita, asyncRoute(contratoAcoesController.renovar));
+router.post('/:id/encerrar', permitir(PapelUsuario.ADMINISTRADOR), asyncRoute(contratoAcoesController.encerrar));
+export default router;

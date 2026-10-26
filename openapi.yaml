@@ -1,0 +1,424 @@
+openapi: 3.0.3
+info:
+  title: GreenCode API
+  version: 2.3.0
+  description: API REST para logística reversa, organizações, contratos, lotes, equipamentos, movimentações, relatórios e auditoria.
+servers:
+  - url: http://localhost:3000
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Erro:
+      type: object
+      properties:
+        erro:
+          type: string
+    Login:
+      type: object
+      required: [usuario, senha]
+      properties:
+        usuario:
+          type: string
+        senha:
+          type: string
+          minLength: 10
+    Versao:
+      type: integer
+      minimum: 1
+      description: Versão atual do registro; necessária no corpo de PATCH e na criação de movimentação.
+    Organizacao:
+      type: object
+      required: [razaoSocial, cnpj, inscricaoEstadual, enderecoCompleto, telefone, email]
+      properties:
+        razaoSocial: { type: string, maxLength: 180 }
+        cnpj: { type: string, description: CNPJ válido, com ou sem pontuação }
+        inscricaoEstadual: { type: string }
+        enderecoCompleto: { type: string }
+        telefone: { type: string }
+        email: { type: string, format: email }
+        ativo: { type: boolean }
+    Contrato:
+      type: object
+      required: [organizacaoId, dataInicio, dataFim, descricao, valorMensal]
+      properties:
+        organizacaoId: { type: string }
+        dataInicio: { type: string, format: date-time }
+        dataFim: { type: string, format: date-time }
+        descricao: { type: string }
+        valorMensal: { type: number, minimum: 0 }
+        coletaAutomatica: { type: boolean }
+        ativo: { type: boolean }
+    Lote:
+      type: object
+      required: [dataEntrada, organizacaoId, notaFiscal, transportadora, observacoes]
+      properties:
+        dataEntrada: { type: string, format: date-time, description: Deve estar entre hoje e os últimos 90 dias }
+        organizacaoId: { type: string }
+        notaFiscal: { type: string }
+        transportadora: { type: string }
+        status: { type: string, enum: [RECEBIDO, EM_TRIAGEM, TRIAGEM_CONCLUIDA, ENCAMINHADO, FINALIZADO] }
+        ativo: { type: boolean, description: false indica lote arquivado; o histórico é preservado }
+        observacoes: { type: string }
+    Equipamento:
+      type: object
+      required: [loteId, codigoBarrasInterno, tipo, marca, modelo, anoFabricacao, estadoFisico, dataEntrada, local, peso]
+      properties:
+        loteId: { type: string }
+        codigoBarrasInterno: { type: string }
+        tipo: { type: string, enum: [COMPUTADOR_MESA, NOTEBOOK, MONITOR, IMPRESSORA, SERVIDOR, SCANNER, BATERIA, CAIXA_ESTABILIZADOR, FONTE_ALIMENTACAO] }
+        marca: { type: string }
+        modelo: { type: string }
+        anoFabricacao: { type: integer, minimum: 1900 }
+        estadoFisico: { type: string, enum: [NOVO, BOM_ESTADO, USADO_LEVE, USADO_MODERADO, DANIFICADO_LEVE, DANIFICADO_GRAVE, IRRECUPERAVEL] }
+        ativo: { type: boolean, description: 'Se informado, deve ser true no cadastro aninhado' }
+        dataEntrada: { type: string, format: date-time }
+        local: { type: string }
+        peso: { type: number, exclusiveMinimum: true, minimum: 0 }
+    EquipamentoParaLote:
+      type: object
+      required: [codigoBarrasInterno, tipo, marca, modelo, anoFabricacao, estadoFisico, dataEntrada, local, peso]
+      properties:
+        codigoBarrasInterno: { type: string }
+        tipo: { type: string, enum: [COMPUTADOR_MESA, NOTEBOOK, MONITOR, IMPRESSORA, SERVIDOR, SCANNER, BATERIA, CAIXA_ESTABILIZADOR, FONTE_ALIMENTACAO] }
+        marca: { type: string }
+        modelo: { type: string }
+        anoFabricacao: { type: integer, minimum: 1900 }
+        estadoFisico: { type: string, enum: [NOVO, BOM_ESTADO, USADO_LEVE, USADO_MODERADO, DANIFICADO_LEVE, DANIFICADO_GRAVE, IRRECUPERAVEL] }
+        ativo: { type: boolean, description: 'Se informado, deve ser true no cadastro aninhado' }
+        dataEntrada: { type: string, format: date-time }
+        local: { type: string }
+        peso: { type: number, exclusiveMinimum: true, minimum: 0 }
+    Movimentacao:
+      type: object
+      required: [equipamentoId, novoStatus, versao]
+      properties:
+        equipamentoId: { type: string }
+        novoStatus: { type: string, enum: [RECEBIDO, EM_TRIAGEM, TRIAGEM_CONCLUIDA, ENCAMINHADO, DESMONTE, RECICLAGEM, DESCARTE] }
+        versao: { $ref: '#/components/schemas/Versao' }
+        justificativa: { type: string, maxLength: 2000 }
+  responses:
+    Unauthorized:
+      description: Token ausente, inválido ou expirado.
+    Forbidden:
+      description: Perfil sem permissão para a operação.
+    Conflict:
+      description: Conflito de versão, campo único ou relacionamento.
+    BadRequest:
+      description: Dados inválidos.
+paths:
+  /api/health:
+    get:
+      security: []
+      summary: Verifica API e conexão com MySQL
+      responses:
+        '200': { description: API e banco disponíveis }
+        '503': { description: API sem conexão com o banco }
+  /api/auth/logout:
+    post:
+      summary: Encerra a sessão atual
+      responses:
+        '200': { description: Sessão encerrada }
+        '401': { description: Sessão inválida ou expirada }
+  /api/auth/login:
+    post:
+      security: []
+      summary: Autentica usuário e retorna JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Login' }
+      responses:
+        '200': { description: Token e dados públicos do usuário, incluindo protegido para identificar o administrador principal }
+        '400': { description: Campos ausentes ou inválidos }
+        '401': { description: Credenciais inválidas }
+        '429': { description: Muitas tentativas de login; aguarde antes de tentar novamente }
+  /api/usuarios:
+    get:
+      summary: Lista usuários sem hashes de senha (somente administrador)
+      description: Aceita filtros opcionais q e ativo; use page e limit para paginação.
+      responses: { '200': { description: Objeto de paginação com dados, total, pagina, limite e totalPaginas; dados contém os usuários } }
+    post:
+      summary: Cria usuário (somente administrador)
+      responses:
+        '201': { description: Usuário criado }
+        '403': { description: Perfil sem permissão }
+  /api/usuarios/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get: { summary: Consulta usuário sem hash de senha, responses: { '200': { description: Usuário } } }
+    patch:
+      summary: Atualiza usuário com controle de versão
+      description: O corpo deve incluir versao. A senha é opcional; se enviada, precisa ter pelo menos 10 caracteres.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [versao], properties: { versao: { $ref: '#/components/schemas/Versao' }, usuario: { type: string }, senha: { type: string, minLength: 10 }, papel: { type: string }, ativo: { type: boolean } } }
+      responses:
+        '200': { description: Usuário atualizado }
+        '409': { description: Conflito de versão }
+    delete: { summary: Inativa usuário (soft delete; não permite inativar o próprio usuário ou o administrador protegido), responses: { '200': { description: Usuário inativado; sessões revogadas; a resposta e a listagem expõem protegido }, '403': { description: Usuário protegido }, '409': { description: Último administrador ativo ou conflito de concorrência } } }
+  /api/organizacoes:
+    get:
+      summary: Lista organizações
+      description: Aceita filtros opcionais q e ativo; use page e limit para paginação.
+      responses: { '200': { description: Objeto de paginação com dados, total, pagina, limite e totalPaginas; dados contém as organizações } }
+    post:
+      summary: Cria organização
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Organizacao' }
+      responses:
+        '201': { description: Organização criada }
+        '400': { description: Dados inválidos }
+  /api/organizacoes/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get: { summary: Busca organização, responses: { '200': { description: Organização encontrada }, '404': { description: Não encontrada } } }
+    patch:
+      summary: Atualiza organização com controle de concorrência otimista
+      description: Envie versao lida anteriormente; em sucesso, ela é incrementada. Retorna 409 se os dados estiverem desatualizados.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { allOf: [{ $ref: '#/components/schemas/Organizacao' }], properties: { versao: { $ref: '#/components/schemas/Versao' } }, required: [versao] }
+      responses:
+        '200': { description: Organização atualizada }
+        '409': { description: Conflito de versão ou unicidade }
+    delete: { summary: Inativa organização e seus contratos, lotes e equipamentos relacionados, preservando movimentações, responses: { '200': { description: Organização e dependentes inativados; histórico preservado }, '409': { description: Organização já inativa ou conflito de concorrência } } }
+  /api/contratos:
+    get:
+      summary: Lista contratos
+      description: Aceita filtros opcionais q e ativo; use page e limit para paginação.
+      responses: { '200': { description: Objeto de paginação com dados, total, pagina, limite e totalPaginas; dados contém os contratos } }
+    post:
+      summary: Cria contrato
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Contrato' }
+      responses:
+        '201': { description: Contrato criado }
+        '409': { description: Organização já possui contrato ou referência inválida }
+  /api/contratos/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get: { summary: Busca contrato, responses: { '200': { description: Contrato } } }
+    patch:
+      summary: Atualiza contrato com controle de versão
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [versao], properties: { versao: { $ref: '#/components/schemas/Versao' }, organizacaoId: { type: string }, dataInicio: { type: string, format: date-time }, dataFim: { type: string, format: date-time }, descricao: { type: string }, valorMensal: { type: number, minimum: 0 }, coletaAutomatica: { type: boolean }, ativo: { type: boolean } } }
+      responses:
+        '200': { description: Contrato atualizado }
+        '409': { description: Conflito de versão }
+    delete: { summary: Encerra contrato logicamente (mesma regra de PATCH ativo=false e POST /encerrar; somente administrador), responses: { '200': { description: Contrato encerrado; histórico preservado }, '403': { description: Somente administrador pode encerrar contrato }, '409': { description: Contrato já inativo ou conflito de concorrência } } }
+  /api/lotes:
+    get:
+      summary: Lista lotes
+      description: Aceita filtros opcionais q e status; use page e limit para paginação. O detalhe do lote inclui equipamentos.
+      responses: { '200': { description: Objeto de paginação com dados, total, pagina, limite e totalPaginas; dados contém os lotes, incluindo ativo para arquivamento lógico } }
+    post:
+      summary: Cria lote e opcionalmente equipamentos de forma transacional
+      description: Pode receber equipamentos como array no corpo sem loteId; ativo deve ser true ou omitido. Exige organização ativa e contrato ativo dentro da vigência; a data final é inclusiva até o fim do dia. Se qualquer equipamento falhar, a operação inteira é revertida; limite de 500 equipamentos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dataEntrada, organizacaoId, notaFiscal, transportadora, observacoes]
+              properties:
+                dataEntrada: { type: string, format: date-time, description: Deve estar entre hoje e os últimos 90 dias }
+                organizacaoId: { type: string }
+                notaFiscal: { type: string }
+                transportadora: { type: string }
+                observacoes: { type: string }
+                ativo: { type: boolean }
+                equipamentos:
+                  type: array
+                  maxItems: 500
+                  items: { $ref: '#/components/schemas/EquipamentoParaLote' }
+      responses:
+        '201': { description: Lote e equipamentos criados }
+  /api/lotes/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get: { summary: Busca lote, responses: { '200': { description: Lote } } }
+    patch:
+      summary: Atualiza lote com controle de versão
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [versao], properties: { versao: { $ref: '#/components/schemas/Versao' }, dataEntrada: { type: string, format: date-time }, organizacaoId: { type: string }, notaFiscal: { type: string }, transportadora: { type: string }, observacoes: { type: string }, ativo: { type: boolean } } }
+      responses:
+        '200': { description: Lote atualizado }
+        '409': { description: Conflito de versão }
+    delete:
+      summary: 'Arquiva lote logicamente e inativa equipamentos ativos, preservando movimentações'
+      responses:
+        '200': { description: 'Lote arquivado; histórico preservado' }
+        '404': { description: 'Lote não encontrado' }
+        '409': { description: 'Lote já inativo ou conflito de concorrência' }
+  /api/equipamentos:
+    get:
+      summary: Lista equipamentos
+      description: Aceita filtros opcionais q, ativo e status; use page e limit para paginação.
+      responses: { '200': { description: Objeto de paginação com dados, total, pagina, limite e totalPaginas; dados contém os equipamentos } }
+    post:
+      summary: Cadastra equipamento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Equipamento' }
+      responses:
+        '201': { description: Equipamento criado }
+        '404': { description: Lote informado não encontrado }
+  /api/equipamentos/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get: { summary: Consulta equipamento, responses: { '200': { description: Equipamento } } }
+    patch:
+      summary: Atualiza equipamento (o status só muda via movimentação)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [versao], properties: { versao: { $ref: '#/components/schemas/Versao' }, loteId: { type: string }, codigoBarrasInterno: { type: string }, tipo: { type: string }, marca: { type: string }, modelo: { type: string }, anoFabricacao: { type: integer }, estadoFisico: { type: string }, justificativa: { type: string, maxLength: 2000 }, ativo: { type: boolean }, dataEntrada: { type: string, format: date-time }, local: { type: string }, peso: { type: number, minimum: 0 } } }
+      responses:
+        '200': { description: Equipamento atualizado }
+        '404': { description: Equipamento ou lote informado não encontrado }
+        '409': { description: Conflito de versão }
+    delete: { summary: Exclui equipamento sem movimentações associadas; se houver histórico, desativa o equipamento, responses: { '200': { description: Equipamento excluído }, '409': { description: Referências impedem exclusão } } }
+  /api/movimentacoes:
+    get:
+      summary: Lista movimentações com equipamento e autor
+      description: Aceita filtros q, equipamentoId, usuarioId e status; use page e limit para paginação.
+      responses: { '200': { description: Histórico de movimentações } }
+    post:
+      summary: Registra movimentação e altera status do equipamento
+      description: Requer equipamentoId, novoStatus e versao do equipamento. Atualização, movimentação e auditoria são atômicas. Transições de status inválidas são recusadas.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Movimentacao' }
+      responses:
+        '201': { description: Movimentação criada }
+        '400': { description: Transição inválida }
+        '409': { description: Conflito de versão }
+  /api/relatorios/resumo:
+    get:
+      summary: Resumo quantitativo e contagem por status
+      description: Retorna contagens gerais, porStatus de equipamentos e lotesPorStatus com todos os estados de lote, inclusive estados com quantidade zero.
+      responses: { '200': { description: Contagens gerais, equipamentos por status e lotes por status } }
+  /api/auditoria:
+    get:
+      summary: Lista eventos de auditoria
+      description: Retorna sempre objeto de paginação com os campos dados, total, pagina, limite e totalPaginas; page padrão 1, limit padrão 50 e máximo 500. Aceita filtros acao, entidade, usuario, entidadeId, dataInicio e dataFim.
+      responses: { '200': { description: Eventos de auditoria } }
+
+  /api/movimentacoes/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      summary: Consulta uma movimentação por ID
+      responses:
+        '200': { description: Movimentação encontrada }
+        '404': { description: Movimentação não encontrada }
+    patch:
+      summary: Edita justificativa e/ou status de uma movimentação com controle de versão
+      description: O corpo exige versao e justificativa e/ou novoStatus. A alteração de novoStatus só é permitida na movimentação mais recente e atualiza o equipamento na mesma transação.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [versao]
+              properties:
+                versao: { $ref: '#/components/schemas/Versao' }
+                justificativa: { type: string, maxLength: 2000 }
+                novoStatus: { type: string, enum: [RECEBIDO, EM_TRIAGEM, TRIAGEM_CONCLUIDA, ENCAMINHADO, DESMONTE, RECICLAGEM, DESCARTE] }
+      responses:
+        '200': { description: Movimentação atualizada }
+        '409': { description: Conflito de versão }
+    delete:
+      summary: Exclui a movimentação mais recente e restaura o status anterior do equipamento
+      parameters:
+        - { name: versao, in: query, required: true, schema: { type: integer, minimum: 1 } }
+      responses:
+        '200': { description: Movimentação excluída e status restaurado }
+        '409': { description: Não é a movimentação mais recente ou há conflito }
+  /api/contratos/{id}/renovar:
+    post:
+      summary: Renova o contrato alterando a data final
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [versao, dataFim]
+              properties:
+                versao: { $ref: '#/components/schemas/Versao' }
+                dataFim: { type: string, format: date-time }
+      responses:
+        '200': { description: Contrato renovado }
+        '409': { description: Contrato encerrado ou conflito de versão }
+  /api/contratos/{id}/encerrar:
+    post:
+      summary: Encerra um contrato ativo
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [versao]
+              properties:
+                versao: { $ref: '#/components/schemas/Versao' }
+      responses:
+        '200': { description: Contrato encerrado }
+        '409': { description: Contrato já encerrado ou conflito de versão }
+  /api/configuracao:
+    get:
+      summary: Consulta alíquota de imposto e coeficiente de depreciação
+      responses:
+        '200': { description: Configuração global }
+    patch:
+      summary: Atualiza configuração global (somente administrador)
+      description: Valores entre 0 e 100. Envie a versão atual e pelo menos um dos campos de configuração.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [versao]
+              properties:
+                versao: { $ref: '#/components/schemas/Versao' }
+                aliquotaImposto: { type: number, minimum: 0, maximum: 100 }
+                coeficienteDepreciacao: { type: number, minimum: 0, maximum: 100 }
+      responses:
+        '200': { description: Configuração atualizada }
+        '409': { description: Conflito de versão }

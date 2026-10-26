@@ -1,0 +1,9 @@
+CREATE TABLE `Configuracao` (
+  `id` VARCHAR(191) NOT NULL DEFAULT 'GLOBAL',
+  `versao` INTEGER NOT NULL DEFAULT 1,
+  `aliquotaImposto` DECIMAL(5,2) NOT NULL DEFAULT 0,
+  `coeficienteDepreciacao` DECIMAL(5,2) NOT NULL DEFAULT 0,
+  `atualizadoPor` VARCHAR(191) NULL,
+  `atualizadoEm` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

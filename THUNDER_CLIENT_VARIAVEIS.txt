@@ -1,0 +1,25 @@
+Variáveis para configurar no ambiente do Thunder Client:
+
+baseUrl = http://localhost:3000
+adminUsuario = admin
+adminSenha = (a senha definida em ADMIN_PASSWORD no .env)
+token = (copie do login)
+userId = (ID retornado ao criar usuário)
+organizacaoId = (ID retornado ao criar organização)
+contratoId = (ID retornado ao criar contrato)
+loteId = (ID retornado ao criar lote)
+equipamentoId = (ID retornado ao criar equipamento)
+
+As requisições dependentes exigem que você copie os IDs retornados pelas requisições de criação para as variáveis correspondentes.
+
+Controle de concorrência otimista:
+- As requisições PATCH devem enviar o campo "versao" retornado na leitura/criação do registro.
+- No fluxo completo da coleção, o equipamento é criado com versão 1, editado para versão 2 e depois movimentado usando versão 2; após a primeira movimentação, sua versão passa a 3.
+- Se receber HTTP 409, consulte novamente o registro e atualize a versão no corpo da requisição.
+
+movimentacaoId = (ID retornado pela listagem de movimentações)
+movimentacaoVersao = (versão retornada ao consultar a movimentação)
+contratoVersao = (versão atual do contrato)
+configuracaoVersao = (versão retornada em GET /api/configuracao)
+
+dataAtual: use a data atual no formato YYYY-MM-DD para requests com janela de 90 dias.

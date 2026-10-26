@@ -1,0 +1,827 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "GreenCode API",
+  "dateExported": "2026-10-24T19:35:00.000Z",
+  "version": "1.2",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "req001",
+      "colId": "greencode-api",
+      "name": "01 - Health",
+      "url": "{{baseUrl}}/api/health",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req002",
+      "colId": "greencode-api",
+      "name": "02 - Login administrador",
+      "url": "{{baseUrl}}/api/auth/login",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"usuario\": \"{{adminUsuario}}\",\n  \"senha\": \"{{adminSenha}}\"\n}"
+      },
+      "description": "Depois de executar, copie o token da resposta para a variável token do ambiente Thunder Client."
+    },
+    {
+      "_id": "req003",
+      "colId": "greencode-api",
+      "name": "03 - Listar usuários",
+      "url": "{{baseUrl}}/api/usuarios",
+      "method": "GET",
+      "sortNum": 30000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req004",
+      "colId": "greencode-api",
+      "name": "04 - Criar usuário de teste",
+      "url": "{{baseUrl}}/api/usuarios",
+      "method": "POST",
+      "sortNum": 40000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"usuario\": \"operador_teste\",\n  \"senha\": \"SenhaTeste123!\",\n  \"papel\": \"OPERADOR_CADASTRO\"\n}"
+      }
+    },
+    {
+      "_id": "req005",
+      "colId": "greencode-api",
+      "name": "05 - Consultar usuário (preencha userId)",
+      "url": "{{baseUrl}}/api/usuarios/{{userId}}",
+      "method": "GET",
+      "sortNum": 50000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req006",
+      "colId": "greencode-api",
+      "name": "06 - Editar papel do usuário (preencha userId)",
+      "url": "{{baseUrl}}/api/usuarios/{{userId}}",
+      "method": "PATCH",
+      "sortNum": 60000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": 1,\n  \"papel\": \"GESTOR_ALMOXARIFADO\"\n}"
+      }
+    },
+    {
+      "_id": "req007",
+      "colId": "greencode-api",
+      "name": "07 - Criar organização",
+      "url": "{{baseUrl}}/api/organizacoes",
+      "method": "POST",
+      "sortNum": 70000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"razaoSocial\": \"GreenCode Organização Teste Ltda\",\n  \"cnpj\": \"11222333000181\",\n  \"inscricaoEstadual\": \"ISENTO\",\n  \"enderecoCompleto\": \"Rua das Flores, 123, São Paulo - SP\",\n  \"telefone\": \"11999998888\",\n  \"email\": \"contato@greencodeteste.com\",\n  \"ativo\": true\n}"
+      }
+    },
+    {
+      "_id": "req008",
+      "colId": "greencode-api",
+      "name": "08 - Listar organizações",
+      "url": "{{baseUrl}}/api/organizacoes",
+      "method": "GET",
+      "sortNum": 80000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req009",
+      "colId": "greencode-api",
+      "name": "09 - Consultar organização (preencha organizacaoId)",
+      "url": "{{baseUrl}}/api/organizacoes/{{organizacaoId}}",
+      "method": "GET",
+      "sortNum": 90000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req010",
+      "colId": "greencode-api",
+      "name": "10 - Editar organização (preencha organizacaoId)",
+      "url": "{{baseUrl}}/api/organizacoes/{{organizacaoId}}",
+      "method": "PATCH",
+      "sortNum": 100000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": 1,\n  \"telefone\": \"11988887777\",\n  \"enderecoCompleto\": \"Avenida Central, 456, São Paulo - SP\"\n}"
+      }
+    },
+    {
+      "_id": "req011",
+      "colId": "greencode-api",
+      "name": "11 - Criar contrato (preencha organizacaoId)",
+      "url": "{{baseUrl}}/api/contratos",
+      "method": "POST",
+      "sortNum": 110000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"organizacaoId\": \"{{organizacaoId}}\",\n  \"dataInicio\": \"{{$datetime}}\",\n  \"dataFim\": \"2027-10-21T00:00:00.000Z\",\n  \"descricao\": \"Contrato de coleta e destinação de resíduos eletrônicos\",\n  \"valorMensal\": 1500,\n  \"coletaAutomatica\": true,\n  \"ativo\": true\n}"
+      }
+    },
+    {
+      "_id": "req012",
+      "colId": "greencode-api",
+      "name": "12 - Listar contratos",
+      "url": "{{baseUrl}}/api/contratos",
+      "method": "GET",
+      "sortNum": 120000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req013",
+      "colId": "greencode-api",
+      "name": "13 - Editar contrato (preencha contratoId)",
+      "url": "{{baseUrl}}/api/contratos/{{contratoId}}",
+      "method": "PATCH",
+      "sortNum": 130000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": 1,\n  \"valorMensal\": 1750,\n  \"coletaAutomatica\": false\n}"
+      }
+    },
+    {
+      "_id": "req014",
+      "colId": "greencode-api",
+      "name": "14 - Criar lote (preencha organizacaoId)",
+      "url": "{{baseUrl}}/api/lotes",
+      "method": "POST",
+      "sortNum": 140000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"dataEntrada\": \"{{$datetime}}\",\n  \"organizacaoId\": \"{{organizacaoId}}\",\n  \"notaFiscal\": \"NF-TESTE-0001\",\n  \"transportadora\": \"Transportadora Teste\",\n  \"status\": \"RECEBIDO\",\n  \"observacoes\": \"Lote criado para testar a API\"\n}"
+      }
+    },
+    {
+      "_id": "req015",
+      "colId": "greencode-api",
+      "name": "15 - Listar lotes",
+      "url": "{{baseUrl}}/api/lotes",
+      "method": "GET",
+      "sortNum": 150000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req016",
+      "colId": "greencode-api",
+      "name": "16 - Editar lote (preencha loteId)",
+      "url": "{{baseUrl}}/api/lotes/{{loteId}}",
+      "method": "PATCH",
+      "sortNum": 160000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": 1,\n  \"transportadora\": \"Transportadora Atualizada\",\n  \"observacoes\": \"Observação atualizada pelo teste\"\n}"
+      }
+    },
+    {
+      "_id": "req017",
+      "colId": "greencode-api",
+      "name": "17 - Criar equipamento (preencha loteId)",
+      "url": "{{baseUrl}}/api/equipamentos",
+      "method": "POST",
+      "sortNum": 170000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"loteId\": \"{{loteId}}\",\n  \"codigoBarrasInterno\": \"GC-TESTE-0001\",\n  \"tipo\": \"NOTEBOOK\",\n  \"marca\": \"Dell\",\n  \"modelo\": \"Latitude 5420\",\n  \"anoFabricacao\": 2022,\n  \"estadoFisico\": \"USADO_LEVE\",\n  \"dataEntrada\": \"{{$datetime}}\",\n  \"local\": \"Galpão A - Prateleira 01\",\n  \"peso\": 2.1\n}"
+      }
+    },
+    {
+      "_id": "req018",
+      "colId": "greencode-api",
+      "name": "18 - Listar equipamentos",
+      "url": "{{baseUrl}}/api/equipamentos",
+      "method": "GET",
+      "sortNum": 180000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req019",
+      "colId": "greencode-api",
+      "name": "19 - Consultar equipamento (preencha equipamentoId)",
+      "url": "{{baseUrl}}/api/equipamentos/{{equipamentoId}}",
+      "method": "GET",
+      "sortNum": 190000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req020",
+      "colId": "greencode-api",
+      "name": "20 - Editar equipamento (preencha equipamentoId)",
+      "url": "{{baseUrl}}/api/equipamentos/{{equipamentoId}}",
+      "method": "PATCH",
+      "sortNum": 200000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": 1,\n  \"local\": \"Galpão B - Prateleira 03\",\n  \"peso\": 2.2\n}"
+      }
+    },
+    {
+      "_id": "req021",
+      "colId": "greencode-api",
+      "name": "21 - Movimentar equipamento para EM_TRIAGEM",
+      "url": "{{baseUrl}}/api/movimentacoes",
+      "method": "POST",
+      "sortNum": 210000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": 2,\n  \"equipamentoId\": \"{{equipamentoId}}\",\n  \"novoStatus\": \"EM_TRIAGEM\",\n  \"justificativa\": \"Início da triagem técnica\"\n}"
+      }
+    },
+    {
+      "_id": "req022",
+      "colId": "greencode-api",
+      "name": "22 - Movimentar equipamento para TRIAGEM_CONCLUIDA",
+      "url": "{{baseUrl}}/api/movimentacoes",
+      "method": "POST",
+      "sortNum": 220000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": 3,\n  \"equipamentoId\": \"{{equipamentoId}}\",\n  \"novoStatus\": \"TRIAGEM_CONCLUIDA\",\n  \"justificativa\": \"Triagem concluída; equipamento avaliado\"\n}"
+      }
+    },
+    {
+      "_id": "req023",
+      "colId": "greencode-api",
+      "name": "23 - Listar movimentações",
+      "url": "{{baseUrl}}/api/movimentacoes",
+      "method": "GET",
+      "sortNum": 230000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req024",
+      "colId": "greencode-api",
+      "name": "24 - Relatório resumido",
+      "url": "{{baseUrl}}/api/relatorios/resumo",
+      "method": "GET",
+      "sortNum": 240000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req025",
+      "colId": "greencode-api",
+      "name": "25 - Consultar auditoria",
+      "url": "{{baseUrl}}/api/auditoria",
+      "method": "GET",
+      "sortNum": 250000,
+      "created": "2026-10-21T14:30:00.000Z",
+      "modified": "2026-10-21T14:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req_mov_get_id",
+      "colId": "greencode-api",
+      "name": "37 - Consultar movimentação por ID",
+      "url": "{{baseUrl}}/api/movimentacoes/{{movimentacaoId}}",
+      "method": "GET",
+      "sortNum": 260000,
+      "created": "2026-10-24T19:30:00.000Z",
+      "modified": "2026-10-24T19:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "description": "Os IDs e versões devem ser preenchidos com valores retornados pela API."
+    },
+    {
+      "_id": "req_mov_patch",
+      "colId": "greencode-api",
+      "name": "38 - Editar justificativa da movimentação",
+      "url": "{{baseUrl}}/api/movimentacoes/{{movimentacaoId}}",
+      "method": "PATCH",
+      "sortNum": 270000,
+      "created": "2026-10-24T19:30:00.000Z",
+      "modified": "2026-10-24T19:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": {{movimentacaoVersao}},\n  \"justificativa\": \"Justificativa revisada pelo Thunder Client\"\n}"
+      },
+      "description": "Os IDs e versões devem ser preenchidos com valores retornados pela API."
+    },
+    {
+      "_id": "req_mov_delete",
+      "colId": "greencode-api",
+      "name": "39 - Estornar última movimentação (somente administrador)",
+      "url": "{{baseUrl}}/api/movimentacoes/{{movimentacaoId}}?versao={{movimentacaoVersao}}",
+      "method": "DELETE",
+      "sortNum": 280000,
+      "created": "2026-10-24T19:30:00.000Z",
+      "modified": "2026-10-24T19:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "description": "Os IDs e versões devem ser preenchidos com valores retornados pela API."
+    },
+    {
+      "_id": "req_contrato_renovar",
+      "colId": "greencode-api",
+      "name": "40 - Renovar contrato",
+      "url": "{{baseUrl}}/api/contratos/{{contratoId}}/renovar",
+      "method": "POST",
+      "sortNum": 290000,
+      "created": "2026-10-24T19:30:00.000Z",
+      "modified": "2026-10-24T19:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": {{contratoVersao}},\n  \"dataFim\": \"2028-12-31T00:00:00.000Z\"\n}"
+      },
+      "description": "Os IDs e versões devem ser preenchidos com valores retornados pela API."
+    },
+    {
+      "_id": "req_contrato_encerrar",
+      "colId": "greencode-api",
+      "name": "41 - Encerrar contrato",
+      "url": "{{baseUrl}}/api/contratos/{{contratoId}}/encerrar",
+      "method": "POST",
+      "sortNum": 300000,
+      "created": "2026-10-24T19:30:00.000Z",
+      "modified": "2026-10-24T19:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": {{contratoVersao}}\n}"
+      },
+      "description": "Os IDs e versões devem ser preenchidos com valores retornados pela API."
+    },
+    {
+      "_id": "req_config_get",
+      "colId": "greencode-api",
+      "name": "42 - Consultar configuração global",
+      "url": "{{baseUrl}}/api/configuracao",
+      "method": "GET",
+      "sortNum": 310000,
+      "created": "2026-10-24T19:30:00.000Z",
+      "modified": "2026-10-24T19:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "description": "Os IDs e versões devem ser preenchidos com valores retornados pela API."
+    },
+    {
+      "_id": "req_config_patch",
+      "colId": "greencode-api",
+      "name": "43 - Atualizar configuração global",
+      "url": "{{baseUrl}}/api/configuracao",
+      "method": "PATCH",
+      "sortNum": 320000,
+      "created": "2026-10-24T19:30:00.000Z",
+      "modified": "2026-10-24T19:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"versao\": {{configuracaoVersao}},\n  \"aliquotaImposto\": 8.5,\n  \"coeficienteDepreciacao\": 12\n}"
+      },
+      "description": "Os IDs e versões devem ser preenchidos com valores retornados pela API."
+    },
+    {
+      "_id": "req_mov_page",
+      "colId": "greencode-api",
+      "name": "44 - Listar movimentações paginadas",
+      "url": "{{baseUrl}}/api/movimentacoes?page=1&limit=200",
+      "method": "GET",
+      "sortNum": 330000,
+      "created": "2026-10-24T19:30:00.000Z",
+      "modified": "2026-10-24T19:30:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "description": "Os IDs e versões devem ser preenchidos com valores retornados pela API."
+    },
+    {
+      "_id": "req_logout_audit",
+      "colId": "greencode-api",
+      "name": "45 - Logout (registra auditoria)",
+      "url": "{{baseUrl}}/api/auth/logout",
+      "method": "POST",
+      "sortNum": 340000,
+      "created": "2026-10-24T19:35:00.000Z",
+      "modified": "2026-10-24T19:35:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "description": "Encerra a sessão atual e grava um evento LOGOUT na auditoria."
+    },
+    {
+      "_id": "req_archive_lote",
+      "colId": "greencode-api",
+      "name": "46 - Arquivar lote e preservar histórico",
+      "url": "{{baseUrl}}/api/lotes/{{loteId}}",
+      "method": "DELETE",
+      "sortNum": 350000,
+      "created": "2026-10-25T10:00:00.000Z",
+      "modified": "2026-10-25T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{token}}",
+          "isDisabled": false
+        }
+      ],
+      "params": [],
+      "tests": [],
+      "description": "Requer administrador ou gestor. Inativa o lote e equipamentos ativos sem excluir movimentações. Use um lote de teste; uma nova tentativa retorna 409."
+    }
+  ]
+}

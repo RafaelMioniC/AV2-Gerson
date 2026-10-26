@@ -1,0 +1,20 @@
+import { Contrato } from "../classes/Contrato"; import { JournalTransacao } from "../audit/jornalTransacao"; import { DadosContrato } from "../models/DadosContrato"; import { RepositorioContrato } from "../repositories/RepositorioContrato"; import { RepositorioOrganizacao } from "../repositories/RepositorioOrganizacao";
+export class ServicoContrato {
+  constructor(private readonly repositorio: RepositorioContrato, private readonly repositorioOrganizacao: RepositorioOrganizacao, private readonly journal: JournalTransacao) { } criar(c: Contrato, u: string): void { const cs = this.repositorio.listar(); if (cs.some(x => x.id === c.id)) throw new Error("Já existe um contrato com este ID."); if (!this.repositorioOrganizacao.listar().some(x => x.id === c.organizacaoId)) throw new Error("A organização informada não existe."); if (c.dataFim <= c.dataInicio) throw new Error("A data de fim do contrato deve ser posterior à data de início."); if (!Number.isFinite(c.valorMensal) || c.valorMensal < 0) throw new Error("O valor mensal do contrato é inválido."); const d: DadosContrato = { id: c.id, organizacaoId: c.organizacaoId, dataInicio: c.dataInicio.toISOString(), dataFim: c.dataFim.toISOString(), descricao: c.descricao, valorMensal: c.valorMensal, coletaAutomatica: c.coletaAutomatica, ativo: c.ativo }; this.journal.registrar(u, "CRIAR", "CONTRATO", c.id, `Cadastro do contrato ${c.id}`); this.repositorio.salvar([...cs, d]); } listar(): Contrato[] { return this.repositorio.listar().map(d => this.converter(d)); } buscarPorId(id: string): Contrato | undefined { return this.listar().find(c => c.id === id); } renovar(id: string, fim: Date, u: string): void { const cs = this.repositorio.listar(); const c = cs.find(x => x.id === id); if (!c) throw new Error("Contrato não encontrado."); if (!c.ativo) throw new Error("Não é possível renovar um contrato encerrado."); if (fim <= new Date(c.dataInicio)) throw new Error("A nova data de fim deve ser posterior à data de início."); c.dataFim = fim.toISOString(); this.journal.registrar(u, "RENOVAR", "CONTRATO", id, `Nova data de fim: ${c.dataFim}`); this.repositorio.salvar(cs); } encerrar(id: string, u: string): void { const cs = this.repositorio.listar(); const c = cs.find(x => x.id === id); if (!c) throw new Error("Contrato não encontrado."); if (!c.ativo) throw new Error("O contrato já está encerrado."); c.ativo = false; this.journal.registrar(u, "ENCERRAR", "CONTRATO", id, `Encerramento do contrato ${id}`); this.repositorio.salvar(cs); } private converter(d: DadosContrato): Contrato { const c = new Contrato(d.id, d.organizacaoId, new Date(d.dataInicio), new Date(d.dataFim), d.descricao, d.valorMensal, d.coletaAutomatica); if (!d.ativo) c.encerrar(); return c; }
+  editar(id: string, campos: Partial<Pick<Contrato, "organizacaoId" | "dataInicio" | "dataFim" | "descricao" | "valorMensal" | "coletaAutomatica">>, usuario: string): void {
+    const dados = this.repositorio.listar(); const item = dados.find(c => c.id === id);
+    if (!item) throw new Error("Contrato não encontrado.");
+    if (campos.organizacaoId && !this.repositorioOrganizacao.listar().some(o => o.id === campos.organizacaoId)) throw new Error("Organização não encontrada.");
+    const inicio = campos.dataInicio ? new Date(campos.dataInicio) : new Date(item.dataInicio);
+    const fim = campos.dataFim ? new Date(campos.dataFim) : new Date(item.dataFim);
+    if (fim <= inicio) throw new Error("A data de fim deve ser posterior à data de início.");
+    if (campos.valorMensal !== undefined && (!Number.isFinite(campos.valorMensal) || campos.valorMensal < 0)) throw new Error("Valor mensal inválido.");
+    Object.assign(item, campos);
+    this.journal.registrar(usuario, "ATUALIZAR", "CONTRATO", id, "Edição do contrato"); this.repositorio.salvar(dados);
+  }
+  excluir(id: string, usuario: string): void {
+    const dados = this.repositorio.listar(); if (!dados.some(c => c.id === id)) throw new Error("Contrato não encontrado.");
+    this.journal.registrar(usuario, "EXCLUIR", "CONTRATO", id, "Exclusão do contrato"); this.repositorio.salvar(dados.filter(c => c.id !== id));
+  }
+
+}

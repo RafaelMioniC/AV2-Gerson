@@ -1,0 +1,300 @@
+@baseUrl = http://localhost:3000
+@adminUsuario = admin
+@adminSenha = SUA_SENHA_REAL_DO_ADMIN
+@dataAtual = {{$datetime "YYYY-MM-DD"}}
+
+### 1. Verificar se a API está ativa
+GET {{baseUrl}}/api/health
+
+### 2. Login como administrador
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "{{adminUsuario}}",
+  "senha": "{{adminSenha}}"
+}
+
+### Token obtido no login
+@token = {{login.response.body.$.token}}
+
+### 3. Listar usuários
+GET {{baseUrl}}/api/usuarios
+Authorization: Bearer {{token}}
+
+### 4. Cadastrar usuário
+# @name criarUsuario
+POST {{baseUrl}}/api/usuarios
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "usuario": "operador_teste",
+  "senha": "SenhaTeste123!",
+  "papel": "OPERADOR_CADASTRO"
+}
+
+### 5. Consultar usuário criado
+GET {{baseUrl}}/api/usuarios/{{criarUsuario.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### 6. Editar usuário criado
+# @name editarUsuario
+PATCH {{baseUrl}}/api/usuarios/{{criarUsuario.response.body.$.id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "versao": {{criarUsuario.response.body.$.versao}},
+  "papel": "GESTOR_ALMOXARIFADO"
+}
+
+### 7. Cadastrar organização
+# @name criarOrganizacao
+POST {{baseUrl}}/api/organizacoes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "razaoSocial": "GreenCode Organização Teste Ltda",
+  "cnpj": "11222333000181",
+  "inscricaoEstadual": "ISENTO",
+  "enderecoCompleto": "Rua das Flores, 123, São Paulo - SP",
+  "telefone": "11999998888",
+  "email": "contato@greencodeteste.com",
+  "ativo": true
+}
+
+### 8. Listar organizações
+GET {{baseUrl}}/api/organizacoes
+Authorization: Bearer {{token}}
+
+### 9. Consultar organização criada
+GET {{baseUrl}}/api/organizacoes/{{criarOrganizacao.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### 10. Editar organização criada
+# @name editarOrganizacao
+PATCH {{baseUrl}}/api/organizacoes/{{criarOrganizacao.response.body.$.id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "versao": {{criarOrganizacao.response.body.$.versao}},
+  "telefone": "11988887777",
+  "enderecoCompleto": "Avenida Central, 456, São Paulo - SP"
+}
+
+### 11. Cadastrar contrato para a organização
+# @name criarContrato
+POST {{baseUrl}}/api/contratos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "organizacaoId": "{{criarOrganizacao.response.body.$.id}}",
+  "dataInicio": "2026-01-01T00:00:00.000Z",
+  "dataFim": "2027-01-01T00:00:00.000Z",
+  "descricao": "Contrato de coleta e destinação de resíduos eletrônicos",
+  "valorMensal": 1500.00,
+  "coletaAutomatica": true,
+  "ativo": true
+}
+
+### 12. Listar contratos
+GET {{baseUrl}}/api/contratos
+Authorization: Bearer {{token}}
+
+### 13. Editar contrato
+# @name editarContrato
+PATCH {{baseUrl}}/api/contratos/{{criarContrato.response.body.$.id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "versao": {{criarContrato.response.body.$.versao}},
+  "valorMensal": 1750.00,
+  "coletaAutomatica": false
+}
+
+### 14. Cadastrar lote vinculado à organização
+# @name criarLote
+POST {{baseUrl}}/api/lotes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "dataEntrada": "{{dataAtual}}",
+  "organizacaoId": "{{criarOrganizacao.response.body.$.id}}",
+  "notaFiscal": "NF-TESTE-0001",
+  "transportadora": "Transportadora Teste",
+  "status": "RECEBIDO",
+  "observacoes": "Lote criado para testar a API"
+}
+
+### 15. Listar lotes
+GET {{baseUrl}}/api/lotes
+Authorization: Bearer {{token}}
+
+### 16. Editar lote
+# @name editarLote
+PATCH {{baseUrl}}/api/lotes/{{criarLote.response.body.$.id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "versao": {{criarLote.response.body.$.versao}},
+  "transportadora": "Transportadora Atualizada",
+  "observacoes": "Observação atualizada pelo teste"
+}
+
+### 17. Cadastrar equipamento vinculado ao lote
+# @name criarEquipamento
+POST {{baseUrl}}/api/equipamentos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "loteId": "{{criarLote.response.body.$.id}}",
+  "codigoBarrasInterno": "GC-TESTE-0001",
+  "tipo": "NOTEBOOK",
+  "marca": "Dell",
+  "modelo": "Latitude 5420",
+  "anoFabricacao": 2022,
+  "estadoFisico": "USADO_LEVE",
+  "dataEntrada": "{{dataAtual}}",
+  "local": "Galpão A - Prateleira 01",
+  "peso": 2.1
+}
+
+### 18. Listar equipamentos
+GET {{baseUrl}}/api/equipamentos
+Authorization: Bearer {{token}}
+
+### 19. Consultar equipamento criado
+GET {{baseUrl}}/api/equipamentos/{{criarEquipamento.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### 20. Editar equipamento
+# @name editarEquipamento
+PATCH {{baseUrl}}/api/equipamentos/{{criarEquipamento.response.body.$.id}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "versao": {{criarEquipamento.response.body.$.versao}},
+  "local": "Galpão B - Prateleira 03",
+  "peso": 2.2
+}
+
+### 21. Registrar movimentação: RECEBIDO -> EM_TRIAGEM
+# @name movimentacaoTriagem
+POST {{baseUrl}}/api/movimentacoes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "equipamentoId": "{{criarEquipamento.response.body.$.id}}",
+  "versao": {{editarEquipamento.response.body.$.versao}},
+  "novoStatus": "EM_TRIAGEM",
+  "justificativa": "Início da triagem técnica"
+}
+
+### Consultar equipamento para obter a versão após a primeira movimentação
+# @name buscarEquipamentoAposTriagem
+GET {{baseUrl}}/api/equipamentos/{{criarEquipamento.response.body.$.id}}
+Authorization: Bearer {{token}}
+
+### 22. Registrar movimentação: EM_TRIAGEM -> TRIAGEM_CONCLUIDA
+POST {{baseUrl}}/api/movimentacoes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "equipamentoId": "{{criarEquipamento.response.body.$.id}}",
+  "versao": {{buscarEquipamentoAposTriagem.response.body.$.versao}},
+  "novoStatus": "TRIAGEM_CONCLUIDA",
+  "justificativa": "Triagem concluída; equipamento avaliado"
+}
+
+### 23. Listar movimentações
+GET {{baseUrl}}/api/movimentacoes
+Authorization: Bearer {{token}}
+
+### 24. Relatório resumido
+GET {{baseUrl}}/api/relatorios/resumo
+Authorization: Bearer {{token}}
+
+### 25. Consultar auditoria
+GET {{baseUrl}}/api/auditoria
+Authorization: Bearer {{token}}
+
+### 26. Excluir equipamento de teste (opcional; execute somente se não tiver movimentações)
+# DELETE {{baseUrl}}/api/equipamentos/{{criarEquipamento.response.body.$.id}}
+# Authorization: Bearer {{token}}
+
+### 27. Arquivar lote de teste (inativa equipamentos, preserva movimentações; admin/gestor)
+# DELETE {{baseUrl}}/api/lotes/{{criarLote.response.body.$.id}}
+# Authorization: Bearer {{token}}
+
+### 28. Encerrar contrato de teste (opcional; somente administrador)
+# DELETE {{baseUrl}}/api/contratos/{{criarContrato.response.body.$.id}}
+# Authorization: Bearer {{token}}
+
+### 29. Inativar organização de teste (opcional; também inativa dependentes)
+# DELETE {{baseUrl}}/api/organizacoes/{{criarOrganizacao.response.body.$.id}}
+# Authorization: Bearer {{token}}
+
+### 30. Inativar usuário de teste (opcional; não pode inativar o usuário autenticado)
+# DELETE {{baseUrl}}/api/usuarios/{{criarUsuario.response.body.$.id}}
+# Authorization: Bearer {{token}}
+
+
+### 29. Listar movimentações com paginação uniforme (padrão: 50; máximo: 500)
+GET {{baseUrl}}/api/movimentacoes?page=1&limit=200
+Authorization: Bearer {{token}}
+
+### 30. Consultar movimentação específica (use um ID retornado na listagem)
+# GET {{baseUrl}}/api/movimentacoes/ID_DA_MOVIMENTACAO
+# Authorization: Bearer {{token}}
+
+### 31. Editar justificativa de movimentação (use a versão retornada na consulta)
+# PATCH {{baseUrl}}/api/movimentacoes/ID_DA_MOVIMENTACAO
+# Authorization: Bearer {{token}}
+# Content-Type: application/json
+#
+# { "versao": 1, "justificativa": "Justificativa revisada", "novoStatus": "TRIAGEM_CONCLUIDA" }
+
+### 32. Excluir a movimentação mais recente e restaurar o status anterior (opcional)
+# DELETE {{baseUrl}}/api/movimentacoes/ID_DA_MOVIMENTACAO?versao=1
+# Authorization: Bearer {{token}}
+
+### 33. Renovar contrato (use o ID e a versão atuais)
+# POST {{baseUrl}}/api/contratos/ID_DO_CONTRATO/renovar
+# Authorization: Bearer {{token}}
+# Content-Type: application/json
+#
+# { "versao": 1, "dataFim": "2028-12-31T00:00:00.000Z" }
+
+### 34. Encerrar contrato (use o ID e a versão atuais)
+# POST {{baseUrl}}/api/contratos/ID_DO_CONTRATO/encerrar
+# Authorization: Bearer {{token}}
+# Content-Type: application/json
+#
+# { "versao": 1 }
+
+### 35. Consultar configuração global
+GET {{baseUrl}}/api/configuracao
+Authorization: Bearer {{token}}
+
+### 36. Atualizar configuração global (somente administrador; use a versão atual)
+# PATCH {{baseUrl}}/api/configuracao
+# Authorization: Bearer {{token}}
+# Content-Type: application/json
+#
+# { "versao": 1, "aliquotaImposto": 8.5, "coeficienteDepreciacao": 12 }
+
+### 37. Encerrar sessão (gera evento de auditoria)
+# POST {{baseUrl}}/api/auth/logout
+# Authorization: Bearer {{token}}
