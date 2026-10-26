@@ -42,7 +42,8 @@ O seed garante o usuário administrador configurado em `.env`, 2 organizações,
 
 ## Acesso do Swagger
 
-Para acessar o Swagger, coloque (http://localhost:3000/api-docs/) no navegador ou clique na url após usar o comando `npm run dev` 
+Para acessar o Swagger, coloque (http://localhost:3000/api-docs/) no navegador após usar o comando `npm run dev` 
+AVISO: pode dar erro caso o navegador seja algum embutido do Visual Studio Code, recomendo que teste pelo navegador de sua preferencia.
 
 ## Endpoints principais
 

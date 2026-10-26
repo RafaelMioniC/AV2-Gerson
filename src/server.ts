@@ -40,3 +40,12 @@ iniciar().catch(async (erro) => {
   await prisma.$disconnect();
   process.exitCode = 1;
 });
+
+
+
+
+// EASTER EGG (UM TRECHO DA MELHOR MUSICA BRASILEIRA): Pra que chorar sua mágoa?
+// Se afogando em agonia
+// Contra tempestade em copo d'água
+// Dance o xote da alegria
+// Honestamente, foi a unica ideia que me veio a cabeça de por
