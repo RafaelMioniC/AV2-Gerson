@@ -21,7 +21,7 @@ npm run db:generate
 npm run db:deploy
 npm run db:seed
 npm run build
-npm start
+npm run dev
 ```
 
 Durante desenvolvimento, use `npm run dev`. A API inicia na porta definida por `PORT` (padrão `3000`) e exige conexão com o MySQL antes de aceitar requisições. O `CORS_ORIGIN` aceita uma lista de origens separadas por vírgula. Não versionar nem compartilhar o `.env`.
